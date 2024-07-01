@@ -2,10 +2,9 @@ import React, { useEffect, useState } from "react";
 import { assets } from "../../assets/assets";
 import "./Add.css";
 import axios from "axios";
+import { toast } from "react-toastify";
 
-const Add = () => {
-
-  const url = 'http://localhost:4000'
+const Add = ({url}) => {
   const [image, setImage] = useState(false);
 
   const [data, setData] = useState({
@@ -21,19 +20,6 @@ const Add = () => {
     setData((data) => ({ ...data, [name]: value }));
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImage(file);
-    } else {
-      setImage(null);
-    }
-  };
-
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
-
   const onSubmiHandler = async (event) => {
     event.preventDefault();
     const formData = new FormData();
@@ -44,17 +30,17 @@ const Add = () => {
     formData.append("image", image);
 
     const response = await axios.post(`${url}/api/food/add`, formData);
-
-    if(response.data.success) {
+    if (response.data.success) {
       setData({
         name: "",
         description: "",
         price: "",
         category: "Salad",
-      })
-      setImage(false)
+      });
+      setImage(false);
+      toast.dark(response.data.message);
     } else {
-    
+      toast.dark(response.data.message);
     }
   };
 
@@ -70,7 +56,7 @@ const Add = () => {
             />
           </label>
           <input
-            onChange={handleImageChange}
+            onChange={(e) => setImage(e.target.files[0])}
             type="file"
             id="image"
             hidden
@@ -85,6 +71,7 @@ const Add = () => {
             type="text"
             name="name"
             placeholder="Type here"
+            required
           />
         </div>
         <div className="add-product-description flex-col">
@@ -101,7 +88,7 @@ const Add = () => {
         <div className="add-category-price">
           <div className="add-category flex-col">
             <p>Product category</p>
-            <select onChange={onChangeHandler} name="category" id="">
+            <select onChange={onChangeHandler} name="category">
               <option value="Salad">Salad</option>
               <option value="Rolls">Rolls</option>
               <option value="Deserts">Deserts</option>
@@ -120,6 +107,7 @@ const Add = () => {
               type="number"
               name="price"
               placeholder="$20"
+              required
             />
           </div>
         </div>
